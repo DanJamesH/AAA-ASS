@@ -139,7 +139,11 @@ public class PRM {
         }
 
         for (double[] row: adj) {
-            System.out.println( Arrays.toString( row ) );
+            // System.out.println( Arrays.toString( row ) );
+            for ( double i: row ) {
+                System.out.print( (int) i + " " );
+            }
+            System.out.println("\n");
         }
 
         in.close();
@@ -147,8 +151,10 @@ public class PRM {
 
     // helper function for generate; removes samples that removes samples that overlap obstacles
     public static void removeSamples(ArrayList<Point> samples,  ArrayList<Point> top_left,  ArrayList<Point> bottom_right) {
+        ArrayList<Point> samples_clone = (ArrayList<Point>) samples.clone();
+        // number of obstacles = number of top-left corners = number of bottom-right corners
         int n_obst = top_left.size();
-        for ( Point sample: samples ) {
+        for ( Point sample: samples_clone ) {
             for ( int i = 0; i < n_obst; ++i ) {
                 /*
                   if a samples x and y coordinates are between the top-left and bottom-right corners' x and y
@@ -164,5 +170,4 @@ public class PRM {
             }
         }
     }
-
 }
