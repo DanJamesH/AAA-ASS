@@ -1,13 +1,8 @@
 package Graph;
 
-import java.util.List;
-import java.util.Arrays;
-import java.util.Scanner;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.stream.Collectors;
 
-import javax.sound.midi.SysexMessage;
+import java.util.Arrays;
+import java.util.ArrayList;
 
 import java.awt.Point;
 
@@ -18,101 +13,57 @@ import algos.Search;
 
 public class PRM {
 
-    public static double[][] generate() {
-        Scanner in = new Scanner(System.in);
-        /*
-         - read first line of input; convert each to integer
-         - convert result of split to stream in order to use stream class's map function
-         - collect result in a list
-        */
-        List<Integer> input = Arrays.stream( in.nextLine().split(" ") ).map(s -> Integer.parseInt(s)).collect(Collectors.toList());
+    /*
+     - k => number of neighbours
+     - n_obstacles => number of obstacles in the map
+     - n_nodes => number of nodes in the graph
+     - dim => dimensions of the map
+    */
+    private int k, n_obstacles, n_nodes, dim;
+    
+    /*
+     - nodes is a collection of the nodes in the graph
+     - top_left is a collection of the coordinates of the top-left corners of every rectangle
+     - bottom_right is a collection of the coordinates of the bottom-right corners of every rectangle
+    */
+    private ArrayList<Point> nodes, top_left, bottom_right;
+
+    private double[][] adj;
+
+    public PRM(ArrayList<Point> nodes, ArrayList<Point> top_left, ArrayList<Point> bottom_right, int k, int n_obstacles,
+            int n_nodes, int dim) {
         
-        // assign first line of input to variables
-        int k = input.get(0), 
-            n_obstacles = input.get(1), 
-            n_samples = input.get(2), 
-            dim = input.get(3); 
-        
-        // get start; x is column and y is row in the adjacency matrix
-        String[] start_string = in.nextLine().split(",");
-        Point start = new Point( Integer.parseInt( start_string[0] ), Integer.parseInt( start_string[1] ) );
+        // initialise vars
+        this.k = k;
+        this.n_obstacles = n_obstacles;
+        this.n_nodes = n_nodes;
+        this.dim = dim;
 
-        // get end
-        String[] end_string = in.nextLine().split(",");
-        Point end = new Point( Integer.parseInt( end_string[0] ), Integer.parseInt( end_string[1] ) );
+        this.nodes = nodes;
+        this.top_left = top_left;
+        this.bottom_right = bottom_right;
 
-        // read obstacles
+        // remove samples that overlap with obstacles and update n_nodes accordingly
+        removeSamples();
+        this.n_nodes = this.nodes.size();
 
-        /*
-         - Collection of coordinates of top-left and bottom-right of obstacles as
-           two parallel lists. One list contains the coordinates of the top left
-           corner of each obstacle while the other contains the coordinates of the
-           bottom right corner fo each obstacle
-        */
-
-        // collection of the coordinates of the top-left corners of every rectangle
-        ArrayList<Point> top_left = new ArrayList<Point>();
-
-        // / collection of the coordinates of the bottom-right corners of every rectangle
-        ArrayList<Point> bottom_right = new ArrayList<Point>();
-        for ( int i = 0; i < n_obstacles; ++i ) {
-            // read top left and bottom right points as strings
-            String[] obst_points = in.nextLine().split(";");
-            
-            // split around the comma; convert results to integers
-            // components of the top-left corner's coordinates
-            List<Integer> top_left_comps = Arrays.stream( obst_points[0].split(",") ).map(s -> Integer.parseInt(s)).collect(Collectors.toList());
-            
-            // components of the bottom-right's corner's coordinates
-            List<Integer> bottom_right_comps = Arrays.stream( obst_points[1].split(",") ).map(s -> Integer.parseInt(s)).collect(Collectors.toList());
-
-            // point holding the coordinates of the top-left corner
-            Point top_left_point = new Point( top_left_comps.get(0), top_left_comps.get(1) );
-
-            // point holding the coordinates of the bottom-right corner
-            Point bottom_right_point = new Point( bottom_right_comps.get(0), bottom_right_comps.get(1) );
-
-            // add above points to the relevant ArrayList
-            top_left.add( top_left_point );
-            bottom_right.add( bottom_right_point );
-        }
-
-        // read samples
-        
-        // collection of samples points as points
-        ArrayList<Point> samples = new ArrayList<Point>();
-        // add start and end as first and second nodes respectively
-        samples.add( start );
-        samples.add( end );
-        for ( int i = 0; i < n_samples; ++i) {
-            // read point; split around ',' and convert each coordinate to integer. Collect results in a list
-            List<Integer> sample = Arrays.stream( in.nextLine().split(",") ).map(s -> Integer.parseInt(s)).collect(Collectors.toList());
-            
-            samples.add ( new Point( sample.get(0), sample.get(1) ) );
-        }
-        // increase n_samples to include start and end
-        n_samples += 2;
-
-        // remove samples that overlap with obstacles and update n_samples accordingly
-        removeSamples(samples, top_left, bottom_right);
-        n_samples = samples.size();
-
+        this.adj = new double[this.n_nodes][this.n_nodes];
         // initialise adjacency matrix adj; fill with zeros
-        double[][] adj = new double[n_samples][n_samples];
-        for (double[] row: adj) {
+        for (double[] row: this.adj) {
             Arrays.fill(row, 0);
         }
+
         /*
          - Create adjacency between every node
          - For each adjacency in adj, add the distance between the two nodes
         */
-        for ( int i = 0; i < n_samples - 1; ++i ) {
-            for ( int j = i + 1; j < n_samples; ++j ) {
+        for ( int i = 0; i < this.n_nodes - 1; ++i ) {
+            for ( int j = i + 1; j < this.n_nodes; ++j ) {
                 if ( i == j ) {
-                    adj[i][j] = 0;
+                    this.adj[i][j] = 0;
                 } else {
-                    adj[i][j] = PointUtils.distance( samples.get(i), samples.get(j) );
-                    adj[j][i] = adj[i][j];
+                    this.adj[i][j] = PointUtils.distance( this.nodes.get(i), this.nodes.get(j) );
+                    this.adj[j][i] = adj[i][j];
                 }
             }
         }
@@ -123,15 +74,15 @@ public class PRM {
            to the k nearest neighbours.
          - Set the value in the adjacency matrix of each neighbour to negative one.
         */
-        for ( double[] row: adj ) {
-            int n_neighbours = n_samples - 1;
+        for ( double[] row: this.adj ) {
+            int n_neighbours = this.n_nodes - 1;
             while ( n_neighbours > k ) {
                 double max = Arrays.stream( row ).max().getAsDouble();
                 row[ Search.linearSearch(row, max) ] = 0;
                 --n_neighbours;
             }
             
-            for ( int i = 0; i < n_samples; ++i ) {
+            for ( int i = 0; i < this.n_nodes; ++i ) {
                 if ( row[i] != 0 ) {
                     row[i] = 1;
                 }
@@ -139,33 +90,45 @@ public class PRM {
         }
 
         // remove edges that overlap obstacles
-        removeEdges(adj, samples, top_left, bottom_right);
+        removeEdges();
+    }
 
-        for (double[] row: adj) {
-            String x = Arrays.toString( row );
-            String y = x.replace(".0", "");
-            System.out.println( y );
+    public double[][] get_adjacency() {
+        return this.adj;
+    }
+
+    public int[][] manhattanAdj() {
+        int[][] manhattan = new int[this.n_nodes][this.n_nodes];
+        for ( int i = 0; i < this.n_nodes; ++i ) {
+            for ( int j = 0; j < this.n_nodes; ++j ) {
+                if ( adj[i][j] == 1 ) {
+                    manhattan[i][j] = manhattanDist(i, j);
+                }
+            }
         }
+        return manhattan;
+    }
 
-        in.close();
+    private int manhattanDist(int node_1, int node_2) {
+        Point a = this.nodes.get(node_1);
+        Point b = this.nodes.get(node_2);
 
-        return adj;
+        return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
     }
 
     // helper function for generate; removes samples that removes samples that overlap obstacles
-    public static void removeSamples(ArrayList<Point> samples,  ArrayList<Point> top_left,  ArrayList<Point> bottom_right) {
-        ArrayList<Point> samples_clone = (ArrayList<Point>) samples.clone();
+    private void removeSamples() {
+        ArrayList<Point> nodes_clone = (ArrayList<Point>) this.nodes.clone();
         // number of obstacles = number of top-left corners = number of bottom-right corners
-        int n_obst = top_left.size();
-        for ( Point sample: samples_clone ) {
-            for ( int i = 0; i < n_obst; ++i ) {
+        for ( Point sample: nodes_clone ) {
+            for ( int i = 0; i < this.n_obstacles; ++i ) {
                 /*
                   if a samples x and y coordinates are between the top-left and bottom-right corners' x and y
                   coordinates remove the sample.
                 */
-                if ( sample.x >= top_left.get(i).x && sample.x <= bottom_right.get(i).x ) {
-                    if ( sample.y >= top_left.get(i).y && sample.y <= bottom_right.get(i).y ) {
-                        samples.remove( sample );
+                if ( sample.x >= this.top_left.get(i).x && sample.x <= this.bottom_right.get(i).x ) {
+                    if ( sample.y >= this.top_left.get(i).y && sample.y <= this.bottom_right.get(i).y ) {
+                        this.nodes.remove( sample );
                         break;
                     }
                 }
@@ -187,18 +150,16 @@ public class PRM {
        of the line is in between the boundary x-values of
        the obstacle.
     */
-    public static void removeEdges(double[][] adj, ArrayList<Point> nodes, ArrayList<Point> top_left,
-            ArrayList<Point> bottom_right) {
-        int n_nodes = adj.length, n_obst = top_left.size();
-        for ( int i = 0; i < n_nodes; ++i ) {
-            for ( int j = i + 1; j < n_nodes; ++j ) {
+    private void removeEdges() {
+        for ( int i = 0; i < this.n_nodes; ++i ) {
+            for ( int j = i + 1; j < this.n_nodes; ++j ) {
                 if ( adj[i][j] == 0 ) {
                     continue;
                 }
 
                 // get the nodes that make the adjacency
-                Point a = nodes.get(i);
-                Point b = nodes.get(j);
+                Point a = this.nodes.get(i);
+                Point b = this.nodes.get(j);
 
                 // top-left and bottom-right corners of the rectangle formed by nodes a and b
                 Point edge_tl = new Point( Math.min( a.x, b.x ), Math.min( a.y, b.y ) );
@@ -214,20 +175,20 @@ public class PRM {
                    obstacle.
                 */
                 if ( a.y == b.y ) {
-                    for ( int k = 0; k < n_obst; ++k ) {
-                        if ((top_left.get(k).y <= a.y && a.y <= bottom_right.get(k).y)
-                                && (a.x <= top_left.get(k).x && bottom_right.get(k).x <= a.x)) {
-                            adj[i][j] = 0;
-                            adj[j][i] = 0;
+                    for ( int k = 0; k < this.n_obstacles; ++k ) {
+                        if ((this.top_left.get(k).y <= a.y && a.y <= this.bottom_right.get(k).y)
+                                && (a.x <= this.top_left.get(k).x && this.bottom_right.get(k).x <= a.x)) {
+                            this.adj[i][j] = 0;
+                            this.adj[j][i] = 0;
                             break;
                         }
                     }
                 } else if ( a.x == b.x ) {
-                    for ( int k = 0; k < n_obst; ++k ) {
+                    for ( int k = 0; k < this.n_obstacles; ++k ) {
                         if ((top_left.get(k).x <= a.x && a.x <= bottom_right.get(k).x)
                                 && (a.y <= top_left.get(k).y && bottom_right.get(k).y <= a.y)) {
-                            adj[i][j] = 0;
-                            adj[j][i] = 0;
+                            this.adj[i][j] = 0;
+                            this.adj[j][i] = 0;
                             break;
                         }
                     }
@@ -247,11 +208,11 @@ public class PRM {
                        is within the relevant boundary range (i.e. y-range of obstacle for line_0
                        and x-range of obstacle for line_1)
                     */
-                    for ( int k = 0; k < n_obst; ++k ) {
-                        double x_left = top_left.get(k).x,
-                               x_right = bottom_right.get(k).x,
-                               y_top = top_left.get(k).y,
-                               y_bottom = bottom_right.get(k).y;
+                    for ( int k = 0; k < this.n_obstacles; ++k ) {
+                        double x_left = this.top_left.get(k).x,
+                               x_right = this.bottom_right.get(k).x,
+                               y_top = this.top_left.get(k).y,
+                               y_bottom = this.bottom_right.get(k).y;
 
                         /*
                            The obstacle must intersect the rectangle created by the nodes. If this isn't the
@@ -278,8 +239,8 @@ public class PRM {
                                     || (x_left <= x_0 && x_0 <= x_right)
                                     || (x_left <= x_1 && x_1 <= x_right)) {
     
-                                adj[i][j] = 0;
-                                adj[j][i] = 0;
+                                this.adj[i][j] = 0;
+                                this.adj[j][i] = 0;
                                 break;
                             }
 

@@ -1,7 +1,7 @@
-all: main search sort prm pointutils arrayutils
+all: main search sort path prm graph pointutils arrayutils
 
 main:
-	javac Main.java
+	javac Program.java
 
 search:
 	javac algos/Search.java
@@ -9,8 +9,14 @@ search:
 sort:
 	javac algos/Sort.java
 
+path:
+	javac algos/graphs/Path.java
+
 prm:
 	javac Graph/PRM.java
+
+graph:
+	javac Graph/Graph.java
 
 pointutils:
 	javac utils/PointUtils.java
