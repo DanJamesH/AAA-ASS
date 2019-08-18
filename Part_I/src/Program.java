@@ -106,10 +106,7 @@ public class Program {
         }
 
 
-        System.out.println("\nOutput of BFS:");
         graph.BreadthFirstSearch(0);
-
-        System.out.println("\nOutput of Dijkstra's Algorithm: ");
         graph.Dijkstra(0,1, weightedMatrix);
 
 

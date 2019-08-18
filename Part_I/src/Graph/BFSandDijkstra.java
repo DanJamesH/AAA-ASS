@@ -135,7 +135,7 @@ public class BFSandDijkstra {
                     System.out.print(path.get(i) + " ");
                 }
             }
-            System.out.print("\n" + pathLengths[endingNode] + "\n");  //Print the manhattan distance to the end node
+            System.out.println("\n" + pathLengths[endingNode]);  //Print the manhattan distance to the end node
         }
     }
 }
