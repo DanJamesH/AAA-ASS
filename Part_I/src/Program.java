@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import java.awt.Point;
 
 import Graph.PRM;
-import algos.graphs.Path;
+import Graph.BFSandDijkstra;
 
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -90,18 +90,28 @@ public class Program {
 
 
         PRM prm = new PRM( samples, top_left, bottom_right, k, n_obstacles, n_samples, dim );
-        Path.dijkstra();
 
-        int[][] manh = prm.manhattanAdj();
-        for (int[] row: manh) {
-            System.out.println( Arrays.toString( row ) );
+        int[][] weightedMatrix = prm.manhattanAdj();
+
+        int[][] adjacencyMatrix = prm.get_adjacency();
+
+        BFSandDijkstra graph = new BFSandDijkstra( prm.get_n_nodes() );
+
+        for(int i = 0; i < adjacencyMatrix[0].length; i++){
+            for (int j = 0; j < adjacencyMatrix[0].length; j++){
+                if(adjacencyMatrix[i][j] == 1){
+                    graph.addEdge(i,j);
+                }
+            }
         }
 
-        for (double[] row: prm.get_adjacency()) {
-            String x = Arrays.toString( row );
-            String y = x.replace(".0", "");
-            System.out.println( y );
-        }
+
+        System.out.println("\nOutput of BFS:");
+        graph.BreadthFirstSearch(0);
+
+        System.out.println("\nOutput of Dijkstra's Algorithm: ");
+        graph.Dijkstra(0,1, weightedMatrix);
+
 
 
         in.close();

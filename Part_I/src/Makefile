@@ -1,4 +1,4 @@
-all: main search sort path prm graph pointutils arrayutils
+all: main search graph prm pointutils
 
 main:
 	javac Program.java
@@ -6,23 +6,17 @@ main:
 search:
 	javac algos/Search.java
 
-sort:
-	javac algos/Sort.java
-
-path:
-	javac algos/graphs/Path.java
-
-prm:
-	javac Graph/PRM.java
+bfsanddijkstra:
+	javac Graph/BFSandDijkstra.java
 
 graph:
 	javac Graph/Graph.java
 
+prm:
+	javac Graph/PRM.java
+
 pointutils:
 	javac utils/PointUtils.java
-
-arrayutils:
-	javac utils/ArrayUtils.java
 
 clean:
 	rm -f *.class algos/*.class algos/graphs/*.class utils/*.class Graph/*.class

@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
+
 public class BFSandDijkstra {
 
     private int numberOfNodes; //Number of nodes
     private ArrayList<Integer>[] adjacencyList; //adjacencyList
 
-    private BFSandDijkstra(int n){
+    public BFSandDijkstra(int n){
         numberOfNodes = n;
         adjacencyList = new ArrayList[n];
         for(int i = 0; i < n; i++){
@@ -18,11 +19,11 @@ public class BFSandDijkstra {
     }
 
     //Add an edge to a node
-    private void addEdge(int i, int j){
+    public void addEdge(int i, int j){
         adjacencyList[i].add(j);
     }
 
-    private void BreadthFirstSearch(int startingNode) {
+    public void BreadthFirstSearch(int startingNode) {
         ArrayList<Integer> bfsPath = new ArrayList<>();// Create an array to hold the bfs results
         ArrayList<Integer> queue = new ArrayList<>(); //Create queue
 
@@ -60,7 +61,7 @@ public class BFSandDijkstra {
         System.out.print("\n");
     }
 
-    private static void Dijkstra(int startingNode, int endingNode, int[][] weightedMatrix){
+    public void Dijkstra(int startingNode, int endingNode, int[][] weightedMatrix){
 
         //Declare stuff
         int max = Integer.MAX_VALUE;
@@ -143,58 +144,7 @@ public class BFSandDijkstra {
                 }
             }
             //Print the manhattan distance to the end node
-            System.out.print("\n" + pathLengths[endingNode]);
+            System.out.print("\n" + pathLengths[endingNode] + "\n");
         }
-    }
-
-public static void main(String[] args) {
-    int[][] weightedMatrix = {
-            {0, 0, 0, 4, 12, 14, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 12, 0, 8, 0, 18, 15, 7},
-            {0, 0, 0, 11, 3, 3, 0, 0, 0, 0, 0, 13, 8, 10},
-            {4, 0, 0, 0, 10, 12, 0, 0, 0, 0, 10, 10, 13, 0},
-            {0, 0, 3, 10, 0, 2, 0, 0, 0, 0, 0, 10, 5, 11},
-            {0, 0, 3, 12, 2, 0, 0, 0, 0, 0, 0, 10, 5, 9},
-            {20, 0, 0, 0, 0, 0, 0, 14, 10, 20, 16, 22, 0, 0},
-            {0, 12, 0, 0, 0, 0, 14, 0, 4, 6, 12, 0, 0, 0},
-            {0, 16, 0, 0, 0, 0, 10, 4, 0, 10, 14, 20, 0, 0},
-            {0, 8, 0, 0, 0, 0, 0, 6, 10, 0, 18, 0, 0, 15},
-            {0, 0, 0, 10, 0, 0, 0, 12, 0, 0, 0, 6, 11, 11},
-            {0, 0, 0, 10, 10, 10, 0, 0, 0, 0, 6, 0, 5, 11},
-            {0, 0, 8, 0, 5, 5, 0, 0, 0, 0, 11, 5, 0, 8},
-            {0, 7, 10, 0, 11, 9, 0, 0, 0, 0, 0, 11, 8, 0},
-    };
-
-    int[][] adjacencyMatrix = new int[][]{
-            { 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-            { 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1},
-            { 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1},
-            { 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0},
-            { 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1},
-            { 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1},
-            { 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0},
-            { 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0},
-            { 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0},
-            { 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1},
-            { 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1},
-            { 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1},
-            { 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1},
-            { 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0},
-    };
-
-    BFSandDijkstra graph = new BFSandDijkstra(adjacencyMatrix[0].length); //How many nodes there are
-
-    //Add edges for every adjacency
-    for(int i = 0; i < adjacencyMatrix[0].length; i++){
-        for (int j = 0; j < adjacencyMatrix[0].length; j++){
-            if(adjacencyMatrix[i][j] == 1){
-                graph.addEdge(i,j);
-            }
-        }
-    }
-
-    //Do the BFS and Dijkstra searches
-    graph.BreadthFirstSearch(0);
-    Dijkstra(0,1, weightedMatrix);
     }
 }

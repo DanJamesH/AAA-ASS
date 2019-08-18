@@ -8,7 +8,6 @@ import java.awt.Point;
 
 import utils.PointUtils;
 
-import algos.Sort;
 import algos.Search;
 
 public class PRM {
@@ -94,8 +93,19 @@ public class PRM {
     }
 
     // return the adjacency matrix that represents this PRM
-    public double[][] get_adjacency() {
-        return this.adj;
+    public int[][] get_adjacency() {
+        int[][] adj = new int[this.n_nodes][this.n_nodes];
+        for ( int i = 0; i < this.n_nodes; ++i ) {
+            for ( int j = 0; j < this.n_nodes; ++j ) {
+                adj[i][j] = (int) this.adj[i][j];
+            }
+        }
+        return adj;
+    }
+
+    // return number of nodes in this PRM
+    public int get_n_nodes() {
+        return this.n_nodes;
     }
 
     /*
