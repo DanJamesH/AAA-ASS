@@ -64,21 +64,18 @@ public class BFSandDijkstra {
     public void Dijkstra(int startingNode, int endingNode, int[][] weightedMatrix){
 
         //Declare stuff
-        int max = Integer.MAX_VALUE;
         int length = weightedMatrix.length;
+        int max = Integer.MAX_VALUE;
         int[] pathLengths = new int[length];
         boolean[] marked = new boolean[length];
         int[] parentNodes = new int[length];
+        int[] tempArray = new int[length];
 
         //Set the distances to infinity and set all the nodes to unmarked
         Arrays.fill(pathLengths, max);
         Arrays.fill(marked, false);
-
-        //Distance between a node and itself is 0;
-        pathLengths[startingNode] = 0;
-
-        //Set the root of the starting node to -1
         parentNodes[startingNode] = -1;
+        pathLengths[startingNode] = 0;
 
         //This loop runs until graph is fully updated
         for(int i = 1; i < length; i++){
@@ -94,15 +91,16 @@ public class BFSandDijkstra {
                     }
                 }
             }
-            
-            //The closest Neighbour has been visited
-            marked[closestNeighbour] = true;
 
             //This runs and recalculates the distance from the current node to its neighbours.
+            //The closest Neighbour has been visited
+            tempArray[closestNeighbour] = 1;
+            marked[closestNeighbour] = true;
             for(int j = 0; j < length; j++){
                 //Get the edge weight from the weightedMatrix
                 int edgeWeight = weightedMatrix[closestNeighbour][j];
-                //If there is an edge, check if the current smallest length plus the edge is less than the current path length. If it is update.
+                //If there is an edge, check if the current smallest length plus the edge is less than the current path length. If it is, then update.
+
                 if(Math.abs(edgeWeight) > 0){
                     if(((minimumLength + edgeWeight) < (pathLengths[j]))){
                         pathLengths[j] = minimumLength + edgeWeight;
@@ -112,23 +110,17 @@ public class BFSandDijkstra {
             }
         }
 
-        //This array will hold the shortest path which will be printed
-        ArrayList<Integer> path = new ArrayList<>();
-
-        //Holder for the current node
-        int temp = endingNode;
-
+        ArrayList<Integer> path = new ArrayList<>(); //This array will hold the shortest path which will be printed
+        int temp = endingNode; //Holder for the current node
         //Add nodes to path from end til start
         while(temp != -1){
             path.add(temp);
             temp = parentNodes[temp];
         }
-
-        //Reverse the path sequence
-        Collections.reverse(path);
+        Collections.reverse(path); //Reverse the path sequence
 
         //Check if the path exists
-        if(path.get(0) != startingNode){
+        if(path.get(0) != startingNode || tempArray[0] != 1){
             System.out.print(-1 + "\n");
             System.out.print(0);
         }
@@ -143,8 +135,7 @@ public class BFSandDijkstra {
                     System.out.print(path.get(i) + " ");
                 }
             }
-            //Print the manhattan distance to the end node
-            System.out.print("\n" + pathLengths[endingNode] + "\n");
+            System.out.print("\n" + pathLengths[endingNode] + "\n");  //Print the manhattan distance to the end node
         }
     }
 }
