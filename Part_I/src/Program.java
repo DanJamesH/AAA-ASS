@@ -97,11 +97,11 @@ public class Program {
             System.out.println( Arrays.toString( row ) );
         }
 
-        // for (double[] row: prm.get_adjacency()) {
-        //     String x = Arrays.toString( row );
-        //     String y = x.replace(".0", "");
-        //     System.out.println( y );
-        // }
+        for (double[] row: prm.get_adjacency()) {
+            String x = Arrays.toString( row );
+            String y = x.replace(".0", "");
+            System.out.println( y );
+        }
 
 
         in.close();
