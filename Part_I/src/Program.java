@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import java.awt.Point;
 
 import Graph.PRM;
+import Graph.BFSandDijkstra;
 import algos.graphs.Path;
 
 import java.util.Arrays;
@@ -92,16 +93,34 @@ public class Program {
         PRM prm = new PRM( samples, top_left, bottom_right, k, n_obstacles, n_samples, dim );
         Path.dijkstra();
 
-        int[][] manh = prm.manhattanAdj();
+        /*int[][] manh = prm.manhattanAdj();
         for (int[] row: manh) {
             System.out.println( Arrays.toString( row ) );
+        }*/
+
+        for (double[] row: prm.get_adjacency()) {
+             String x = Arrays.toString( row );
+             String y = x.replace(".0", "");
+            System.out.println( y );
+         }
+
+        int[][] weightedMatrix;  // = Put weighted matrix here
+
+        int[][] adjacencyMatrix; // = Put adjacency matrix here
+
+        // UNCOMMENT THIS CODE TO RUN
+        /*BFSandDijkstra graph = new BFSandDijkstra(adjacencyMatrix[0].length);
+
+        for(int i = 0; i < adjacencyMatrix[0].length; i++){
+            for (int j = 0; j < adjacencyMatrix[0].length; j++){
+                if(adjacencyMatrix[i][j] == 1){
+                    graph.addEdge(i,j);
+                }
+            }
         }
 
-        // for (double[] row: prm.get_adjacency()) {
-        //     String x = Arrays.toString( row );
-        //     String y = x.replace(".0", "");
-        //     System.out.println( y );
-        // }
+        graph.BreadthFirstSearch(0);
+        graph.Dijkstra(0,1, weightedMatrix);*/
 
 
         in.close();
