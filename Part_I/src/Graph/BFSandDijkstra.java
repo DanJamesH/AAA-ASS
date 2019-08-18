@@ -73,7 +73,7 @@ public class BFSandDijkstra {
 
         //Set the distances to infinity and set all the nodes to unmarked
         Arrays.fill(pathLengths, max);
-        Arrays.fill(marked, false);
+
         parentNodes[startingNode] = -1;
         pathLengths[startingNode] = 0;
 
