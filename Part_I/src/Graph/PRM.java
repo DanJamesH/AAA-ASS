@@ -93,10 +93,15 @@ public class PRM {
         removeEdges();
     }
 
+    // return the adjacency matrix that represents this PRM
     public double[][] get_adjacency() {
         return this.adj;
     }
 
+    /*
+       Generate a weighted adjacency matrix in which the weights are the man-
+       hattan distances between nodes.
+    */
     public int[][] manhattanAdj() {
         int[][] manhattan = new int[this.n_nodes][this.n_nodes];
         for ( int i = 0; i < this.n_nodes; ++i ) {
@@ -109,6 +114,7 @@ public class PRM {
         return manhattan;
     }
 
+    // calculate the manhattan distance between node_1 and node_2
     private int manhattanDist(int node_1, int node_2) {
         Point a = this.nodes.get(node_1);
         Point b = this.nodes.get(node_2);
