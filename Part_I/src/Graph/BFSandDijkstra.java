@@ -79,10 +79,10 @@ public class BFSandDijkstra {
         //Set the root of the starting node to -1
         parentNodes[startingNode] = -1;
 
-        //This loop runs 
+        //This loop runs until graph is fully updated
         for(int i = 1; i < length; i++){
-            int closestNeighbour = -1;
             int minimumLength = max;
+            int closestNeighbour = -1;
             for(int j = 0; j < length; j++){
                 //If the node j is not yet visited
                 if(!marked[j]){
