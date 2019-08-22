@@ -6,6 +6,9 @@ main:
 search:
 	javac algos/Search.java
 
+shortestpath:
+	javac algos/ShortestPath.java
+
 bfsanddijkstra:
 	javac Graph/BFSandDijkstra.java
 
