@@ -108,6 +108,11 @@ public class PRM {
         return this.n_nodes;
     }
 
+    // return an arraylist of the nodes in this graph as points
+    public ArrayList<Point> get_nodes() {
+        return this.nodes;
+    }
+
     /*
        Generate a weighted adjacency matrix in which the weights are the man-
        hattan distances between nodes.

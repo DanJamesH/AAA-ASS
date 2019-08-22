@@ -1,63 +1,77 @@
 package algos;
 
 import java.awt.Point;
+
 import java.util.PriorityQueue;
+import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Stack;
 
 public class ShortestPath {
-    public void a_star(Point[][] parent, int[][] cost_so_far, double[][] Priority, Point start, Point goal, Point kink) {
-    	PriorityQueue<Point> frontier = new PriorityQueue<Point>(new Comparator<Point>() {
-    		public int compare (Point a, Point b) {
-    			if (Priority[a.y][a.x] > Priority[b.y][b.x]) return 1;
-    			if (Priority[a.y][a.x] < Priority[b.y][b.x]) return -1;
-    			
+    public static Stack<Integer> a_star( ArrayList<Point> nodes, int[][] adjacency ) {
+        int n_nodes = nodes.size();
+        int[] parent = new int[ n_nodes ];
+        double[] cost_so_far = new double[ n_nodes ], priority = new double[ n_nodes ];
+
+        Arrays.fill( cost_so_far, -1 );
+
+    	PriorityQueue<Integer> fringe = new PriorityQueue<Integer>(new Comparator<Integer>() {
+    		public int compare (Integer a, Integer b) {
+    			if ( priority[ a ] > priority[ b ] ) return 1;
+    			if ( priority[ a ] < priority[ b ] ) return -1;
     			return 0;
     		}
     	});
     	
-    	frontier.add(start);
-    	parent[start.y][start.x] = start;
-    	cost_so_far[start.y][start.x] = 0;
+    	fringe.add( 0 );
+    	parent[ 0 ] = 0;
+    	cost_so_far[ 0 ] = 0;
     	
-    	while (!frontier.isEmpty()) {
-    		Point current = frontier.poll();
+    	while ( !fringe.isEmpty() ) {
+    		int current = fringe.poll();
     		
-    		if (current.equals(goal)) {
-    			break;
+    		if ( current == 1  ) {
+                Stack<Integer> path = new Stack<Integer>();
+                path.push( 1 );
+                while ( parent[ path.peek() ] != 0) {
+                    path.push( parent[ path.peek() ] );
+                }
+                path.push( 0 );
+    			return path;
     		}
     		
-    		ArrayList<Point> neighbours = neighbours(parent, current);
+    		int[] neighbours = adjacency[ current ];
     		
-    		neighbours.forEach(neighbour -> {
-    			int new_cost = cost_so_far[current.y][current.x] + 1;
-    			if ((cost_so_far[neighbour.y][neighbour.x] == -1) || (new_cost < cost_so_far[neighbour.y][neighbour.x])) {
-    				cost_so_far[neighbour.y][neighbour.x] = new_cost;
-    				double priority = new_cost + heuristic(neighbour, goal);
-    				Priority[neighbour.y][neighbour.x] = priority;
-    				frontier.add(neighbour);
-    				parent[neighbour.y][neighbour.x] = current;
-    			}
-    		});
-    	}
-    	
-		if ((frontier.isEmpty()) && (parent[goal.y][goal.x].equals(new Point(-1, -1)) || parent[goal.y][goal.x].equals(new Point(-2, -2)))) {
-			
-			int height = parent.length, width = parent[0].length;
-			Random r = new Random();
-			int x = r.nextInt((int) (width * 0.5) + 1) + (int) (width * 0.25);
-			int y = r.nextInt((int) (height * 0.5) + 1) + (int) (height * 0.25);
-			
-			Point move = new Point (x, y);
-			
-			move(move, start, kink);
-			
-		} else {
-			Point current = goal;
-			while (!parent[current.y][current.x].equals(start)) {
-				current = parent[current.y][current.x];
-			}
+    		for ( int i = 0; i < n_nodes; ++i ) {
+                if ( neighbours[ i ] != 0 ) {
+                    int neighbour = i;
+                    double new_cost = cost_so_far[ current ] + cost( nodes.get( current ), nodes.get( neighbour ) );
+                    if ( ( cost_so_far[ neighbour ] == -1 )
+                            || ( new_cost < cost_so_far[ neighbour ] ) ) {
+                        cost_so_far[ neighbour ] = new_cost;
+                        double estimated_dist = new_cost + heuristic( nodes.get( neighbour ), nodes.get( 1 ) );
+                        priority[ neighbour ] = estimated_dist;
+                        fringe.add(neighbour);
+                        parent[ neighbour ] = current;
+                    }
+                }
+    		}
+        }
+        
+        Stack<Integer> no_path = new Stack<Integer>(); 
+        no_path.push( -1 );
+        return no_path;
+    }
 
-			move(current, start, kink);
-		}
-    	
+    // helper function for a_star that computes Euclidean distance between nodes.
+    public static double cost(Point a, Point b) {
+    	double cost = Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
+    	return cost;
+    }
+
+    // helper function for a_star that computes Euclidean distance between nodes.
+    public static double heuristic(Point node, Point goal) {
+        return Math.abs(node.x - goal.x) + Math.abs(node.y - goal.y);
     }
 }
