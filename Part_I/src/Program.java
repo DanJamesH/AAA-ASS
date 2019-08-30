@@ -14,6 +14,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Stack;
 
+
+
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+
+
+
 public class Program {
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
@@ -96,6 +106,7 @@ public class Program {
 
         int[][] weightedMatrix = prm.manhattanAdj();
         int[][] adjacencyMatrix = prm.get_adjacency();
+
         ArrayList<Point> nodes = prm.get_nodes();
 
         Stack<Integer> path = ShortestPath.a_star( nodes, adjacencyMatrix );
@@ -105,8 +116,7 @@ public class Program {
             System.out.print( path.pop() + " ");
         }
         System.out.println("\n");
-
-        System.out.println( "That's all folks" );
+        
         // BFSandDijkstra graph = new BFSandDijkstra( prm.get_n_nodes() );
 
         // for(int i = 0; i < adjacencyMatrix[0].length; i++){

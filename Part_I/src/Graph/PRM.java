@@ -48,8 +48,8 @@ public class PRM {
 
         this.adj = new double[this.n_nodes][this.n_nodes];
         // initialise adjacency matrix adj; fill with zeros
-        for (double[] row: this.adj) {
-            Arrays.fill(row, 0);
+        for ( double[] row: this.adj ) {
+            Arrays.fill( row, 0 );
         }
 
         /*
@@ -62,6 +62,7 @@ public class PRM {
                     this.adj[i][j] = 0;
                 } else {
                     this.adj[i][j] = PointUtils.distance( this.nodes.get(i), this.nodes.get(j) );
+                    // the distance from i to j is equal to the distance from j to i
                     this.adj[j][i] = adj[i][j];
                 }
             }
@@ -69,12 +70,17 @@ public class PRM {
 
         /*
          - Find k nearest neighbours by sorting each row so that the first k values (after 
-           the first which is zero; distance between a node and itself) are the distances 
-           to the k nearest neighbours.
-         - Set the value in the adjacency matrix of each neighbour to negative one.
+           the first which is zero and is distance between a node and itself) are the dist-
+           ances to the k nearest neighbours.
+         - Set the value in the adjacency matrix of each neighbour to one.
         */
         for ( double[] row: this.adj ) {
             int n_neighbours = this.n_nodes - 1;
+            
+            /*
+               While there are more than k neighbours, remove nodes in decreasing order
+               of distance.
+            */
             while ( n_neighbours > k ) {
                 double max = Arrays.stream( row ).max().getAsDouble();
                 row[ Search.linearSearch(row, max) ] = 0;
@@ -139,7 +145,7 @@ public class PRM {
 
     // helper function for generate; removes samples that removes samples that overlap obstacles
     private void removeSamples() {
-        ArrayList<Point> nodes_clone = (ArrayList<Point>) this.nodes.clone();
+        ArrayList<Point> nodes_clone = ( ArrayList<Point> ) this.nodes.clone();
         // number of obstacles = number of top-left corners = number of bottom-right corners
         for ( Point sample: nodes_clone ) {
             for ( int i = 0; i < this.n_obstacles; ++i ) {
@@ -178,7 +184,7 @@ public class PRM {
                     continue;
                 }
 
-                // get the nodes that make the adjacency
+                // get the nodes that are joined by the adjacency
                 Point a = this.nodes.get(i);
                 Point b = this.nodes.get(j);
 
@@ -197,8 +203,9 @@ public class PRM {
                 */
                 if ( a.y == b.y ) {
                     for ( int k = 0; k < this.n_obstacles; ++k ) {
-                        if ((this.top_left.get(k).y <= a.y && a.y <= this.bottom_right.get(k).y)
-                                && (a.x <= this.top_left.get(k).x && this.bottom_right.get(k).x <= a.x)) {
+                        if ( ( this.top_left.get(k).y <= a.y && a.y <= this.bottom_right.get(k).y )
+                                && ( ( a.x <= this.top_left.get(k).x && this.bottom_right.get(k).x <= b.x )
+                                ||   ( b.x <= this.top_left.get(k).x && this.bottom_right.get(k).x <= a.x ) ) ) {
                             this.adj[i][j] = 0;
                             this.adj[j][i] = 0;
                             break;
@@ -206,8 +213,9 @@ public class PRM {
                     }
                 } else if ( a.x == b.x ) {
                     for ( int k = 0; k < this.n_obstacles; ++k ) {
-                        if ((top_left.get(k).x <= a.x && a.x <= bottom_right.get(k).x)
-                                && (a.y <= top_left.get(k).y && bottom_right.get(k).y <= a.y)) {
+                        if ( ( top_left.get(k).x <= a.x && a.x <= bottom_right.get(k).x )
+                                && ( (a.y <= top_left.get(k).y && bottom_right.get(k).y <= b.y)
+                                ||   (b.y <= top_left.get(k).y && bottom_right.get(k).y <= a.y) ) ) {
                             this.adj[i][j] = 0;
                             this.adj[j][i] = 0;
                             break;
