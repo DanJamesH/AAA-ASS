@@ -44,14 +44,10 @@ public class ShortestPath {
     	cost_so_far[ 0 ] = 0;
     	
     	while ( !fringe.isEmpty() ) {
-            System.out.println( "\nCurrent is: " + fringe.peek() + "\nFringe: " + fringe );
-
             // the current node being processed is taken from the head of the queue
     		int current = fringe.poll();
     		
     		if ( current == 1  ) {
-                System.out.println("\nCost to goal: " + cost_so_far[ 1 ]);
-
                 Stack<Integer> path = new Stack<Integer>();
                 path.push( 1 );
                 while ( parent[ path.peek() ] != 0) {

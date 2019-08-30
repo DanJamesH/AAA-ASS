@@ -27,7 +27,7 @@ public class Program {
 
         for ( int pow = 1; pow <= max_n; ++pow ) {
             for ( int k = 1; k < 10; ++k ) {
-                int n_samples = ( int ) Math.pow( 10, pow * k );
+                int n_samples = ( int ) Math.pow( 10, pow ) * k;
 
                 System.out.println( "Beginning Experiment Of Size: " + n_samples + "\n" );
 
@@ -53,7 +53,7 @@ public class Program {
                 System.out.println( "Appending  Results To Data File" );
                 Results.write( n_samples, ave_time, "AAA_ASS.txt", "time" );
                 
-                System.out.println( "\n#################### Input Of Size " + n_samples + "DONE!!! ####################\n" );
+                System.out.println( "\n#################### Input Of Size " + n_samples + " DONE!!! ####################\n" );
 
             }
         }
