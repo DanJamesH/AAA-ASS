@@ -25,7 +25,7 @@ public class ShortestPath {
         Arrays.fill( cost_so_far, -1 );
 
         /*
-           Initialise the priority queue fringe
+           Initialise fringe
         */
     	PriorityQueue<Integer> fringe = new PriorityQueue<Integer>(new Comparator<Integer>() {
     		public int compare (Integer a, Integer b) {
@@ -44,6 +44,8 @@ public class ShortestPath {
     	cost_so_far[ 0 ] = 0;
     	
     	while ( !fringe.isEmpty() ) {
+            System.out.println( "\nCurrent is: " + fringe.peek() + "\nFringe: " + fringe );
+
             // the current node being processed is taken from the head of the queue
     		int current = fringe.poll();
     		
@@ -73,8 +75,10 @@ public class ShortestPath {
                         cost_so_far[ neighbour ] = new_cost;
                         double estimated_dist = new_cost + heuristic( nodes.get( neighbour ), nodes.get( 1 ) );
                         priority[ neighbour ] = estimated_dist;
-                        fringe.add( neighbour );
                         parent[ neighbour ] = current;
+                        if ( !fringe.contains( neighbour ) ) {
+                            fringe.add( neighbour );
+                        }
                     }
                 }
     		}
@@ -87,13 +91,13 @@ public class ShortestPath {
 
     // helper function for a_star that computes Manhattan distance between nodes.
     public static double cost(Point a, Point b) {
-        double cost = Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+        double cost = Math.abs( a.x - b.x ) + Math.abs( a.y - b.y );
         return cost;
     }
 
     // helper function for a_star that computes Euclidean distance between nodes.
     public static double heuristic(Point node, Point goal) {
-    	double cost = Math.sqrt( Math.pow( node.x - goal.x, 2 ) + Math.pow( node.y - goal.y, 2 ) );
-    	return cost;
+    	double heuristic = Math.sqrt( Math.pow( node.x - goal.x, 2 ) + Math.pow( node.y - goal.y, 2 ) );
+    	return heuristic;
     }
 }

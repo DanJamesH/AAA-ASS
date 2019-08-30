@@ -18,29 +18,53 @@ public class PRM {
      - n_nodes => number of nodes in the graph
      - dim => dimensions of the map
     */
-    private int k, n_obstacles, n_nodes, dim;
+    private int k           = 6, 
+                n_obstacles = 10, 
+                dim         = 100,
+                n_nodes;
     
     /*
      - nodes is a collection of the nodes in the graph
      - top_left is a collection of the coordinates of the top-left corners of every rectangle
      - bottom_right is a collection of the coordinates of the bottom-right corners of every rectangle
     */
-    private ArrayList<Point> nodes, top_left, bottom_right;
+    private ArrayList<Point> nodes,
+                             top_left     = new ArrayList<Point>(
+                                Arrays.asList(
+                                    new Point(8, 12),
+                                    new Point(36, 73),
+                                    new Point(25, 6),
+                                    new Point(15, 0),
+                                    new Point(0, 63),
+                                    new Point(2, 50),
+                                    new Point(70, 81),
+                                    new Point(91, 68),
+                                    new Point(12, 3),
+                                    new Point(5, 12)
+                                ) 
+                             ),
+                             bottom_right = new ArrayList<Point>(
+                                Arrays.asList(
+                                    new Point(20, 16),
+                                    new Point(37, 83),
+                                    new Point(29, 12),
+                                    new Point(17, 6),
+                                    new Point(7, 67),
+                                    new Point(3, 60),
+                                    new Point(75, 86),
+                                    new Point(94, 74),
+                                    new Point(15, 4),
+                                    new Point(6, 17)
+                                )
+                             );
 
     private double[][] adj;
 
-    public PRM(ArrayList<Point> nodes, ArrayList<Point> top_left, ArrayList<Point> bottom_right, int k, int n_obstacles,
-            int n_nodes, int dim) {
+    public PRM( ArrayList<Point> nodes, int n_nodes ) {
         
         // initialise vars
-        this.k = k;
-        this.n_obstacles = n_obstacles;
         this.n_nodes = n_nodes;
-        this.dim = dim;
-
         this.nodes = nodes;
-        this.top_left = top_left;
-        this.bottom_right = bottom_right;
 
         // remove samples that overlap with obstacles and update n_nodes accordingly
         removeSamples();
@@ -164,19 +188,6 @@ public class PRM {
         }
     }
 
-    /*
-       - Check if the lines between two nodes crosses any of the 
-       boundary lines of each obstacle. If it does. remove the
-       edge between them.
-       - Represent the line as a function of x [line_0] and evaluate it at
-       each boundary x-value. Remove an edge if the output value
-       of the line is in between the boundary y-values of
-       the obstacle.
-       - Represent the line as a function of y [line_1] and evaluate it at
-       each boundary y-value. Remove an edge if the output value
-       of the line is in between the boundary x-values of
-       the obstacle.
-    */
     private void removeEdges() {
         for ( int i = 0; i < this.n_nodes; ++i ) {
             for ( int j = i + 1; j < this.n_nodes; ++j ) {
@@ -222,6 +233,21 @@ public class PRM {
                         }
                     }
                 } else {
+
+                    /*
+                       - Check if the lines between two nodes crosses any of the 
+                       boundary lines of each obstacle. If it does. remove the
+                       edge between them.
+                       - Represent the line as a function of x [line_0] and evaluate it at
+                       each boundary x-value. Remove an edge if the output value
+                       of the line is in between the boundary y-values of
+                       the obstacle.
+                       - Represent the line as a function of y [line_1] and evaluate it at
+                       each boundary y-value. Remove an edge if the output value
+                       of the line is in between the boundary x-values of
+                       the obstacle.
+                    */
+
                     // slope of the line_0
                     double m_y = (double) (b.y - a.y) / (b.x - a.x);
                     // slope of the line_1
@@ -246,13 +272,13 @@ public class PRM {
                         /*
                            The obstacle must intersect the rectangle created by the nodes. If this isn't the
                            case, then the line through the points may intersect the obstacle elsewhere i.e.
-                           another part of the line which isn't the edge between the nodes overlaps the ob-
-                           stacle.
+                           another part of the line through both nodes. A part of the line which isn't between
+                           the nodes.
                         */
-                        if ((edge_tl.y <= y_top && y_top <= edge_br.y)
-                                || (edge_tl.y <= y_bottom && y_bottom <= edge_br.y)
-                                || (edge_tl.x <= x_left && x_left <= edge_br.x)
-                                || (edge_tl.x <= x_right && x_right <= edge_br.x)) {
+                        if ( ( edge_tl.y <= y_top && y_top <= edge_br.y )
+                                || ( edge_tl.y <= y_bottom && y_bottom <= edge_br.y )
+                                || ( edge_tl.x <= x_left && x_left <= edge_br.x )
+                                || ( edge_tl.x <= x_right && x_right <= edge_br.x ) ) {
                                     
                             // evaluate line_0 at boundary x-values
                             double y_0 = m_y * x_left + c_y;
@@ -263,10 +289,10 @@ public class PRM {
                             double x_1 = m_x * y_bottom + c_x;
         
         
-                            if ((y_top <= y_0 && y_0 <= y_bottom)
-                                    || (y_top <= y_1 && y_1 <= y_bottom)
-                                    || (x_left <= x_0 && x_0 <= x_right)
-                                    || (x_left <= x_1 && x_1 <= x_right)) {
+                            if ( ( y_top <= y_0 && y_0 <= y_bottom )
+                                    || ( y_top <= y_1 && y_1 <= y_bottom )
+                                    || ( x_left <= x_0 && x_0 <= x_right )
+                                    || ( x_left <= x_1 && x_1 <= x_right ) ) {
     
                                 this.adj[i][j] = 0;
                                 this.adj[j][i] = 0;

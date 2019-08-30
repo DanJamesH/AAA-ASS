@@ -1,138 +1,65 @@
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.Collections;
-import java.util.stream.Collectors;
+import java.util.Random;
+import java.util.Arrays;
+import java.util.Stack;
 
 import java.awt.Point;
 
 import algos.ShortestPath;
 
-import Graph.PRM;
 import Graph.BFSandDijkstra;
+import Graph.PRM;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Stack;
-
-
-
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import utils.Results;
 
 
 
 
 public class Program {
     public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        /*
-         - read first line of input; convert each to integer
-         - convert result of split to stream in order to use stream class's map function
-         - collect result in a list
-        */
-        List<Integer> input = Arrays.stream( in.nextLine().split(" ") ).map(s -> Integer.parseInt(s)).collect(Collectors.toList());
-        
-        // assign first line of input to variables
-        int k = input.get(0), 
-            n_obstacles = input.get(1), 
-            n_samples = input.get(2), 
-            dim = input.get(3); 
-        
-        // get start; x is column and y is row in the adjacency matrix
-        String[] start_string = in.nextLine().split(",");
-        Point start = new Point( Integer.parseInt( start_string[0] ), Integer.parseInt( start_string[1] ) );
+        Scanner in = new Scanner( System.in );
 
-        // get end
-        String[] end_string = in.nextLine().split(",");
-        Point end = new Point( Integer.parseInt( end_string[0] ), Integer.parseInt( end_string[1] ) );
+        System.out.print("Input Largest Power Of 10: ");
+        int max_n = in.nextInt(), n_tests = 100;
 
-        // read obstacles
+        Random random = new Random();
 
-        /*
-         - Collection of coordinates of top-left and bottom-right of obstacles as
-           two parallel lists. One list contains the coordinates of the top left
-           corner of each obstacle while the other contains the coordinates of the
-           bottom right corner fo each obstacle
-        */
+        for ( int pow = 1; pow <= max_n; ++pow ) {
+            for ( int k = 1; k < 10; ++k ) {
+                int n_samples = ( int ) Math.pow( 10, pow * k );
 
-        // collection of the coordinates of the top-left corners of every rectangle
-        ArrayList<Point> top_left = new ArrayList<Point>();
+                System.out.println( "Beginning Experiment Of Size: " + n_samples + "\n" );
 
-        // / collection of the coordinates of the bottom-right corners of every rectangle
-        ArrayList<Point> bottom_right = new ArrayList<Point>();
-        for ( int i = 0; i < n_obstacles; ++i ) {
-            // read top left and bottom right points as strings
-            String[] obst_points = in.nextLine().split(";");
-            
-            // split around the comma; convert results to integers
-            // components of the top-left corner's coordinates
-            List<Integer> top_left_comps = Arrays.stream( obst_points[0].split(",") ).map(s -> Integer.parseInt(s)).collect(Collectors.toList());
-            
-            // components of the bottom-right's corner's coordinates
-            List<Integer> bottom_right_comps = Arrays.stream( obst_points[1].split(",") ).map(s -> Integer.parseInt(s)).collect(Collectors.toList());
+                ArrayList<Point> samples = new ArrayList<Point>();
+                for ( int i = 0; i < n_samples; ++i) {
+                    samples.add( new Point( random.nextInt( 100 ), random.nextInt( 100 ) ) );
+                }
 
-            // point holding the coordinates of the top-left corner
-            Point top_left_point = new Point( top_left_comps.get(0), top_left_comps.get(1) );
+                PRM prm = new PRM( samples, n_samples );
 
-            // point holding the coordinates of the bottom-right corner
-            Point bottom_right_point = new Point( bottom_right_comps.get(0), bottom_right_comps.get(1) );
+                int[][] adjacencyMatrix = prm.get_adjacency();
+                ArrayList<Point> nodes = prm.get_nodes();
 
-            // add above points to the relevant ArrayList
-            top_left.add( top_left_point );
-            bottom_right.add( bottom_right_point );
+                double ave_time = 0;
+                for ( int j = 0; j < n_tests; ++j ) {
+                    double start = System.nanoTime();
+                    ShortestPath.a_star( nodes, adjacencyMatrix );
+                    ave_time += ( System.nanoTime() - start ) / n_tests;
+                }
+
+                System.out.println( "Average Time For Size " + n_samples + ": " + ave_time + "\n" );
+
+                System.out.println( "Appending  Results To Data File" );
+                Results.write( n_samples, ave_time, "AAA_ASS.txt", "time" );
+                
+                System.out.println( "\n#################### Input Of Size " + n_samples + "DONE!!! ####################\n" );
+
+            }
         }
 
-        // read samples
+        System.out.println( "\n#################### All Inputs DONE!!! ####################\n" );
         
-        // collection of samples points as points
-        ArrayList<Point> samples = new ArrayList<Point>();
-        // add start and end as first and second nodes respectively
-        samples.add( start );
-        samples.add( end );
-        for ( int i = 0; i < n_samples; ++i) {
-            // read point; split around ',' and convert each coordinate to integer. Collect results in a list
-            List<Integer> sample = Arrays.stream( in.nextLine().split(",") ).map(s -> Integer.parseInt(s)).collect(Collectors.toList());
-            
-            samples.add ( new Point( sample.get(0), sample.get(1) ) );
-        }
-        // increase n_samples to include start and end
-        n_samples += 2;
-
-
-
-        PRM prm = new PRM( samples, top_left, bottom_right, k, n_obstacles, n_samples, dim );
-
-        int[][] weightedMatrix = prm.manhattanAdj();
-        int[][] adjacencyMatrix = prm.get_adjacency();
-
-        ArrayList<Point> nodes = prm.get_nodes();
-
-        Stack<Integer> path = ShortestPath.a_star( nodes, adjacencyMatrix );
-
-        System.out.println("\n");
-        while ( !path.empty() ) {
-            System.out.print( path.pop() + " ");
-        }
-        System.out.println("\n");
-        
-        // BFSandDijkstra graph = new BFSandDijkstra( prm.get_n_nodes() );
-
-        // for(int i = 0; i < adjacencyMatrix[0].length; i++){
-        //     for (int j = 0; j < adjacencyMatrix[0].length; j++){
-        //         if(adjacencyMatrix[i][j] == 1){
-        //             graph.addEdge(i,j);
-        //         }
-        //     }
-        // }
-
-
-        // graph.BreadthFirstSearch(0);
-        // graph.Dijkstra(0,1, weightedMatrix);
-
-
-
         in.close();
     }
 }
