@@ -58,7 +58,8 @@ public class PRM {
                                 )
                              );
 
-    private double[][] adj;
+    private double[][] adj_matrix;
+    private ArrayList< ArrayList<Integer> > adj_list = new ArrayList< ArrayList<Integer> >();
 
     public PRM( ArrayList<Point> nodes, int n_nodes ) {
         
@@ -70,24 +71,24 @@ public class PRM {
         removeSamples();
         this.n_nodes = this.nodes.size();
 
-        this.adj = new double[this.n_nodes][this.n_nodes];
-        // initialise adjacency matrix adj; fill with zeros
-        for ( double[] row: this.adj ) {
+        this.adj_matrix = new double[this.n_nodes][this.n_nodes];
+        // initialise adjacency matrix adj_matrix; fill with zeros
+        for ( double[] row: this.adj_matrix ) {
             Arrays.fill( row, 0 );
         }
 
         /*
          - Create adjacency between every node
-         - For each adjacency in adj, add the distance between the two nodes
+         - For each adjacency in adj_matrix, add the distance between the two nodes
         */
         for ( int i = 0; i < this.n_nodes - 1; ++i ) {
             for ( int j = i + 1; j < this.n_nodes; ++j ) {
                 if ( i == j ) {
-                    this.adj[i][j] = 0;
+                    this.adj_matrix[i][j] = 0;
                 } else {
-                    this.adj[i][j] = PointUtils.distance( this.nodes.get(i), this.nodes.get(j) );
+                    this.adj_matrix[i][j] = PointUtils.distance( this.nodes.get(i), this.nodes.get(j) );
                     // the distance from i to j is equal to the distance from j to i
-                    this.adj[j][i] = adj[i][j];
+                    this.adj_matrix[j][i] = adj_matrix[i][j];
                 }
             }
         }
@@ -98,7 +99,7 @@ public class PRM {
            ances to the k nearest neighbours.
          - Set the value in the adjacency matrix of each neighbour to one.
         */
-        for ( double[] row: this.adj ) {
+        for ( double[] row: this.adj_matrix ) {
             int n_neighbours = this.n_nodes - 1;
             
             /*
@@ -120,17 +121,32 @@ public class PRM {
 
         // remove edges that overlap obstacles
         removeEdges();
+
+        for ( double[] row: adj_matrix ) {
+            ArrayList< Integer > neighbours = new ArrayList< Integer >();
+            for ( int i = 0; i < this.n_nodes; ++i ) {
+                if ( row[i] != 0 ) {
+                    neighbours.add( i );
+                }
+            }
+            this.adj_list.add( neighbours );
+        }
     }
 
     // return the adjacency matrix that represents this PRM
-    public int[][] get_adjacency() {
-        int[][] adj = new int[this.n_nodes][this.n_nodes];
+    public int[][] get_adjMatrix() {
+        int[][] adj_matrix = new int[this.n_nodes][this.n_nodes];
         for ( int i = 0; i < this.n_nodes; ++i ) {
             for ( int j = 0; j < this.n_nodes; ++j ) {
-                adj[i][j] = (int) this.adj[i][j];
+                adj_matrix[i][j] = (int) this.adj_matrix[i][j];
             }
         }
-        return adj;
+        return adj_matrix;
+    }
+
+    // return the adjacency list that represents this PRM
+    public ArrayList< ArrayList<Integer> > get_adjList() {
+        return this.adj_list;
     }
 
     // return number of nodes in this PRM
@@ -151,7 +167,7 @@ public class PRM {
         int[][] manhattan = new int[this.n_nodes][this.n_nodes];
         for ( int i = 0; i < this.n_nodes; ++i ) {
             for ( int j = 0; j < this.n_nodes; ++j ) {
-                if ( adj[i][j] == 1 ) {
+                if ( adj_matrix[i][j] == 1 ) {
                     manhattan[i][j] = manhattanDist(i, j);
                 }
             }
@@ -191,7 +207,7 @@ public class PRM {
     private void removeEdges() {
         for ( int i = 0; i < this.n_nodes; ++i ) {
             for ( int j = i + 1; j < this.n_nodes; ++j ) {
-                if ( adj[i][j] == 0 ) {
+                if ( adj_matrix[i][j] == 0 ) {
                     continue;
                 }
 
@@ -217,8 +233,8 @@ public class PRM {
                         if ( ( this.top_left.get(k).y <= a.y && a.y <= this.bottom_right.get(k).y )
                                 && ( ( a.x <= this.top_left.get(k).x && this.bottom_right.get(k).x <= b.x )
                                 ||   ( b.x <= this.top_left.get(k).x && this.bottom_right.get(k).x <= a.x ) ) ) {
-                            this.adj[i][j] = 0;
-                            this.adj[j][i] = 0;
+                            this.adj_matrix[i][j] = 0;
+                            this.adj_matrix[j][i] = 0;
                             break;
                         }
                     }
@@ -227,8 +243,8 @@ public class PRM {
                         if ( ( top_left.get(k).x <= a.x && a.x <= bottom_right.get(k).x )
                                 && ( (a.y <= top_left.get(k).y && bottom_right.get(k).y <= b.y)
                                 ||   (b.y <= top_left.get(k).y && bottom_right.get(k).y <= a.y) ) ) {
-                            this.adj[i][j] = 0;
-                            this.adj[j][i] = 0;
+                            this.adj_matrix[i][j] = 0;
+                            this.adj_matrix[j][i] = 0;
                             break;
                         }
                     }
@@ -294,8 +310,8 @@ public class PRM {
                                     || ( x_left <= x_0 && x_0 <= x_right )
                                     || ( x_left <= x_1 && x_1 <= x_right ) ) {
     
-                                this.adj[i][j] = 0;
-                                this.adj[j][i] = 0;
+                                this.adj_matrix[i][j] = 0;
+                                this.adj_matrix[j][i] = 0;
                                 break;
                             }
 

@@ -38,20 +38,26 @@ public class Program {
 
                 PRM prm = new PRM( samples, n_samples );
 
-                int[][] adjacencyMatrix = prm.get_adjacency();
+                ArrayList< ArrayList<Integer> > adj_list = prm.get_adjList();
                 ArrayList<Point> nodes = prm.get_nodes();
 
+                Stack<Integer> s = new Stack< Integer >();
                 double ave_time = 0;
                 for ( int j = 0; j < n_tests; ++j ) {
                     double start = System.nanoTime();
-                    ShortestPath.a_star( nodes, adjacencyMatrix );
+                    s = ShortestPath.a_star( nodes, adj_list );
                     ave_time += ( System.nanoTime() - start ) / n_tests;
                 }
+
+                while ( !s.empty() ) {
+                    System.out.print(s.pop() + " ");
+                }
+                System.out.println("\n");
 
                 System.out.println( "Average Time For Size " + n_samples + ": " + ave_time + "\n" );
 
                 System.out.println( "Appending  Results To Data File" );
-                Results.write( n_samples, ave_time, "AAA_ASS.txt", "time" );
+                Results.write( n_samples, ave_time, "AAA_ASS.csv", "time" );
                 
                 System.out.println( "\n#################### Input Of Size " + n_samples + " DONE!!! ####################\n" );
 

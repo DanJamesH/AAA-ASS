@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Stack;
 
 public class ShortestPath {
-    public static Stack<Integer> a_star( ArrayList<Point> nodes, int[][] adjacency ) {
+    public static Stack<Integer> a_star( ArrayList<Point> nodes, ArrayList< ArrayList<Integer> > adj_list ) {
         // Number of nodes in the graph
         int n_nodes = nodes.size();
 
@@ -58,23 +58,19 @@ public class ShortestPath {
     		}
             
             // fetch all of the neighbours of the current node
-    		int[] neighbours = adjacency[ current ];
+    		ArrayList<Integer> neighbours = adj_list.get( current );
             
             // for every other node in the graph
-    		for ( int i = 0; i < n_nodes; ++i ) {
-                // if there is an edge between the current node another node
-                if ( neighbours[ i ] != 0 ) {
-                    int neighbour = i;
-                    double new_cost = cost_so_far[ current ] + cost( nodes.get( current ), nodes.get( neighbour ) );
-                    if ( ( cost_so_far[ neighbour ] == -1 )
-                            || ( new_cost < cost_so_far[ neighbour ] ) ) {
-                        cost_so_far[ neighbour ] = new_cost;
-                        double estimated_dist = new_cost + heuristic( nodes.get( neighbour ), nodes.get( 1 ) );
-                        priority[ neighbour ] = estimated_dist;
-                        parent[ neighbour ] = current;
-                        if ( !fringe.contains( neighbour ) ) {
-                            fringe.add( neighbour );
-                        }
+    		for ( int neighbour: neighbours ) {
+                double new_cost = cost_so_far[ current ] + cost( nodes.get( current ), nodes.get( neighbour ) );
+                if ( ( cost_so_far[ neighbour ] == -1 )
+                        || ( new_cost < cost_so_far[ neighbour ] ) ) {
+                    cost_so_far[ neighbour ] = new_cost;
+                    double estimated_dist = new_cost + heuristic( nodes.get( neighbour ), nodes.get( 1 ) );
+                    priority[ neighbour ] = estimated_dist;
+                    parent[ neighbour ] = current;
+                    if ( !fringe.contains( neighbour ) ) {
+                        fringe.add( neighbour );
                     }
                 }
     		}
